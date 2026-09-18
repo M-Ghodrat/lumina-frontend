@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,300;0,400;1,400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --color-brand-paper: #FAF9F6;
+  --color-brand-ink: #2D2D2D;
+  --color-brand-accent: #D4A373;
+  --color-brand-mute: #F2EFE9;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-brand-paper);
+    color: var(--color-brand-ink);
+    @apply font-sans;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-light tracking-tight;
+  }
+}
+
+.luxury-card {
+  @apply bg-white border border-gray-100 shadow-sm p-6 transition-all duration-300 hover:shadow-lg rounded-[2rem];
+}
+
+.pill-button-primary {
+  @apply px-6 py-3 bg-brand-ink text-white text-sm rounded-full hover:bg-black transition-all font-medium;
+}
+
+.pill-button-accent {
+  @apply px-6 py-3 bg-brand-accent text-white text-sm rounded-full hover:opacity-90 transition-all font-medium shadow-md shadow-brand-accent/20;
+}
+
+.input-field {
+  @apply w-full bg-gray-50 border-none rounded-xl text-sm p-3 focus:ring-1 focus:ring-brand-accent outline-none transition-all;
+}
