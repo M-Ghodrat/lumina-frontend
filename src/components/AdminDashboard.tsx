@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { api } from '../services/api';
-import { auth } from '../firebase';
+import { auth, signInWithGoogle } from '../firebase';
+import { onAuthStateChanged, User } from 'firebase/auth';
 import { Appointment, Inquiry, Service } from '../types';
 import { 
   Calendar as CalendarIcon, 
@@ -47,6 +48,8 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
   // Calendar Navigation
   const [currentDate, setCurrentDate] = useState(new Date());
 
+  const [adminUser, setAdminUser] = useState<User | null>(auth.currentUser);
+
   // Fetch data via backend API
   const loadAdminData = async () => {
     setIsRefreshing(true);
@@ -73,6 +76,16 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
       setIsRefreshing(false);
     }
   };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setAdminUser(u);
+      if (isOpen && u) {
+        loadAdminData();
+      }
+    });
+    return () => unsubscribe();
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -351,8 +364,33 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
 
             {/* Error Message */}
             {error && (
-              <div className="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm">
-                {error}
+              <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <ShieldCheck className="text-amber-600 shrink-0 mt-0.5" size={18} />
+                  <div>
+                    <p className="font-semibold">{error}</p>
+                    {(!adminUser || adminUser.email !== 'mohsenghodrat2@gmail.com') && (
+                      <p className="text-xs text-amber-700 mt-1">
+                        Currently signed in as: <span className="font-mono">{adminUser?.email || 'Not Signed In'}</span>. Admin rights are assigned to <span className="font-semibold">mohsenghodrat2@gmail.com</span>.
+                      </p>
+                    )}
+                  </div>
+                </div>
+                {(!adminUser || adminUser.email !== 'mohsenghodrat2@gmail.com') && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        await signInWithGoogle();
+                        loadAdminData();
+                      } catch (err: any) {
+                        setError(err.message);
+                      }
+                    }}
+                    className="px-4 py-2 bg-brand-ink text-white text-xs font-semibold rounded-full hover:bg-black transition-all shrink-0 cursor-pointer text-center"
+                  >
+                    Sign In with Google
+                  </button>
+                )}
               </div>
             )}
 
