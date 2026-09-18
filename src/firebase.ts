@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import type { Firestore } from 'firebase/firestore';
 import { FirestoreErrorInfo } from './types';
 
 const env = ((import.meta as any).env || {}) as Record<string, string>;
@@ -10,15 +10,12 @@ const firebaseConfig = {
   appId: env.VITE_FIREBASE_APP_ID || "1:108335510952:web:4bca144da6050d1e9b199d",
   apiKey: env.VITE_FIREBASE_API_KEY || "AIzaSyAxYWYngppQwMnvGr_cb2pmaVSU7zirHlY",
   authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || "gen-lang-client-0189962209.firebaseapp.com",
-  firestoreDatabaseId: env.VITE_FIREBASE_DATABASE_ID || "ai-studio-329297ba-fdab-4efd-a8ad-b44e4f29cf39",
   storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || "gen-lang-client-0189962209.firebasestorage.app",
   messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || "108335510952"
 };
 
-const firestoreDbId = env.VITE_FIREBASE_DATABASE_ID;
-
 const app = initializeApp(firebaseConfig);
-export const db = firestoreDbId ? getFirestore(app, firestoreDbId) : getFirestore(app);
+export const db = null as unknown as Firestore;
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
@@ -52,14 +49,3 @@ export function handleFirestoreError(error: any, operationType: FirestoreErrorIn
   };
   throw new Error(JSON.stringify(errorInfo));
 }
-
-async function testConnection() {
-  try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
-  } catch (error: any) {
-    if (error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration.");
-    }
-  }
-}
-testConnection();
