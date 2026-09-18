@@ -80,8 +80,13 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setAdminUser(u);
-      if (isOpen && u) {
-        loadAdminData();
+      if (isOpen) {
+        if (u) {
+          loadAdminData();
+        } else {
+          setIsLoading(false);
+          setError('Admin authentication required. Please sign in with your admin Google account (mohsenghodrat2@gmail.com).');
+        }
       }
     });
     return () => unsubscribe();
@@ -89,7 +94,12 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
 
   useEffect(() => {
     if (isOpen) {
-      loadAdminData();
+      if (auth.currentUser) {
+        loadAdminData();
+      } else {
+        setIsLoading(false);
+        setError('Admin authentication required. Please sign in with your admin Google account (mohsenghodrat2@gmail.com).');
+      }
     }
   }, [isOpen]);
 
@@ -287,7 +297,7 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
               <div>
                 <h2 className="text-lg font-serif">Lumina Beauty Operations</h2>
                 <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                  Admin Control Panel &bull; Verified: {auth.currentUser?.email}
+                  Admin Control Panel &bull; Verified: {auth.currentUser?.email || 'Guest / Not Signed In'}
                 </p>
               </div>
             </div>
@@ -371,7 +381,7 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
                     <p className="font-semibold">{error}</p>
                     {(!adminUser || adminUser.email !== 'mohsenghodrat2@gmail.com') && (
                       <p className="text-xs text-amber-700 mt-1">
-                        Currently signed in as: <span className="font-mono">{adminUser?.email || 'Not Signed In'}</span>. Admin rights are assigned to <span className="font-semibold">mohsenghodrat2@gmail.com</span>.
+                        Currently signed in as: <span className="font-mono font-bold">{adminUser?.email || 'Not Signed In'}</span>. Admin rights are assigned to <span className="font-semibold">mohsenghodrat2@gmail.com</span>.
                       </p>
                     )}
                   </div>
